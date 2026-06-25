@@ -110,6 +110,18 @@
 
   mark { background: rgba(79,142,247,0.25); color: var(--accent); border-radius: 3px; padding: 0 2px; }
 
+  .copy-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted);
+    font-size: 12px; cursor: pointer; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--success); color: var(--success); background: rgba(34,197,94,0.08); }
+  .price-box-inner { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
   #pagination { display: flex; justify-content: center; gap: 8px; padding: 20px 0 8px; flex-wrap: wrap; }
   .page-btn {
     padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border);
@@ -238,6 +250,8 @@
   function cardHTML(row, q) {
     const dealer = fmt(row.d);
     const sclass = fmt(row.c);
+    const copyText = `${row.a}\n${row.s}\n${row.m}\n${dealer !== null ? '@' + dealer : '단가없음'}`;
+    const escapedCopy = copyText.replace(/`/g, '\\`').replace(/\$/g, '\\$');
     return `<div class="result-card">
       <div class="card-top">
         <span class="article-no">${hl(row.a, q)}</span>
@@ -247,7 +261,10 @@
       <div class="price-row">
         <div class="price-box">
           <div class="price-label">대리점가</div>
-          ${dealer !== null ? `<div class="price-value dealer">₩${dealer}</div>` : `<div class="price-value no-price">—</div>`}
+          <div class="price-box-inner">
+            ${dealer !== null ? `<div class="price-value dealer">₩${dealer}</div>` : `<div class="price-value no-price">—</div>`}
+            <button class="copy-btn" onclick="copyInfo(this, \`${escapedCopy}\`)">📋 복사</button>
+          </div>
         </div>
         <div class="price-box">
           <div class="price-label">S CLASS</div>
@@ -255,6 +272,17 @@
         </div>
       </div>
     </div>`;
+  }
+
+  function copyInfo(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ 복사됨';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = '📋 복사';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
   }
 
   function renderResults(data, q) {
