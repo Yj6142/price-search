@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단가 검색 | CEREATIZIT KOREA</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #4f8ef7;
+    --accent2: #7c3aed;
+    --text: #e8eaf6;
+    --muted: #7c82a8;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', -apple-system, sans-serif; min-height: 100vh; }
+
+  header {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px 16px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-inner { max-width: 960px; margin: 0 auto; }
+  .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .logo h1 { font-size: 18px; font-weight: 700; }
+  .logo span { font-size: 12px; color: var(--muted); font-weight: 400; }
+
+  .search-wrap { position: relative; }
+  .search-input {
+    width: 100%; padding: 12px 48px 12px 44px;
+    background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: var(--radius); color: var(--text); font-size: 15px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--muted); }
+  .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 16px; pointer-events: none; }
+  .clear-btn {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: var(--border); border: none; color: var(--muted); cursor: pointer;
+    padding: 4px 8px; border-radius: 6px; font-size: 12px; display: none;
+  }
+  .clear-btn.visible { display: block; }
+
+  .filter-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+  .filter-btn {
+    padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; transition: all 0.15s;
+  }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .data-status { font-size: 12px; color: var(--muted); margin-left: auto; }
+  .data-status.ready { color: var(--success); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+
+  #results-header { display: none; justify-content: space-between; margin-bottom: 12px; font-size: 13px; color: var(--muted); }
+  #results-header.visible { display: flex; }
+
+  .result-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px; margin-bottom: 10px;
+    transition: all 0.15s; position: relative; overflow: hidden;
+  }
+  .result-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, var(--accent), var(--accent2));
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .result-card:hover { border-color: var(--accent); background: var(--surface2); }
+  .result-card:hover::before { opacity: 1; }
+
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+  .article-no {
+    font-family: 'Courier New', monospace; font-size: 13px; color: var(--accent);
+    background: rgba(79,142,247,0.1); padding: 3px 8px; border-radius: 5px; white-space: nowrap;
+  }
+  .sales-text { font-size: 12px; color: var(--muted); text-align: right; }
+  .material-desc { font-size: 15px; font-weight: 600; margin-bottom: 12px; line-height: 1.4; }
+
+  .price-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .price-box { background: var(--surface2); border-radius: 8px; padding: 10px 12px; }
+  .price-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .price-value { font-size: 18px; font-weight: 700; }
+  .price-value.dealer { color: var(--warning); }
+  .price-value.sclass { color: var(--success); }
+  .price-value.no-price { font-size: 13px; color: var(--muted); font-weight: 400; }
+
+  .center-msg { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .center-msg .icon { font-size: 36px; margin-bottom: 12px; }
+  .center-msg p { font-size: 14px; }
+
+  .spinner {
+    width: 32px; height: 32px; border: 3px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  mark { background: rgba(79,142,247,0.25); color: var(--accent); border-radius: 3px; padding: 0 2px; }
+
+  #pagination { display: flex; justify-content: center; gap: 8px; padding: 20px 0 8px; flex-wrap: wrap; }
+  .page-btn {
+    padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--muted); font-size: 13px; cursor: pointer; transition: all 0.15s;
+  }
+  .page-btn:hover { border-color: var(--accent); color: var(--text); }
+  .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .page-btn:disabled { opacity: 0.3; cursor: default; }
+
+  @media (max-width: 480px) {
+    header { padding: 14px 16px 12px; }
+    .search-input { font-size: 16px; }
+    .price-value { font-size: 16px; }
+    .data-status { display: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🔍</div>
+      <div><h1>단가 검색 <span>CEREATIZIT KOREA</span></h1></div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔎</span>
+      <input type="text" id="search-input" class="search-input"
+             placeholder="Article No. 또는 Material Description 입력..."
+             autocomplete="off" autocorrect="off" spellcheck="false" disabled>
+      <button class="clear-btn" id="clear-btn">✕ 지우기</button>
+    </div>
+    <div class="filter-row">
+      <button class="filter-btn active" data-filter="all">전체</button>
+      <button class="filter-btn" data-filter="article">Article No.</button>
+      <button class="filter-btn" data-filter="material">Material Desc.</button>
+      <span class="data-status" id="data-status">데이터 로딩 중...</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="results-header"><span id="results-count"></span></div>
+  <div id="results-container">
+    <div class="center-msg">
+      <div class="spinner"></div>
+      <p>단가 데이터를 불러오는 중...</p>
+    </div>
+  </div>
+  <div id="pagination"></div>
+</main>
+
+<script>
+  let allData = [];
+  let filtered = [];
+  let currentPage = 1;
+  let searchMode = 'all';
+  let debounceTimer;
+  const PAGE_SIZE = 50;
+
+  // 데이터 로드
+  fetch('data.json')
+    .then(r => r.json())
+    .then(data => {
+      allData = data;
+      document.getElementById('data-status').textContent = `✓ ${data.length.toLocaleString()}개 로드됨`;
+      document.getElementById('data-status').classList.add('ready');
+      document.getElementById('search-input').disabled = false;
+      document.getElementById('search-input').placeholder = 'Article No. 또는 Material Description 입력...';
+      document.getElementById('results-container').innerHTML =
+        `<div class="center-msg"><div class="icon">🔎</div><p>Article No. 또는 Material Description을 입력하세요</p></div>`;
+      document.getElementById('search-input').focus();
+    })
+    .catch(() => {
+      document.getElementById('results-container').innerHTML =
+        `<div class="center-msg"><div class="icon">⚠️</div><p>data.json 파일을 불러올 수 없습니다.<br>index.html과 같은 폴더에 있는지 확인해주세요.</p></div>`;
+    });
+
+  document.getElementById('search-input').addEventListener('input', e => {
+    const q = e.target.value.trim();
+    document.getElementById('clear-btn').classList.toggle('visible', q.length > 0);
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => doSearch(q), 150);
+  });
+
+  document.getElementById('clear-btn').addEventListener('click', () => {
+    document.getElementById('search-input').value = '';
+    document.getElementById('clear-btn').classList.remove('visible');
+    filtered = []; currentPage = 1;
+    renderResults([], '');
+    document.getElementById('search-input').focus();
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      searchMode = btn.dataset.filter;
+      const q = document.getElementById('search-input').value.trim();
+      if (q) doSearch(q);
+    });
+  });
+
+  function doSearch(q) {
+    if (!q) { filtered = []; currentPage = 1; renderResults([], ''); return; }
+    const lower = q.toLowerCase();
+    filtered = allData.filter(row => {
+      if (searchMode === 'article') return row.a.toLowerCase().includes(lower);
+      if (searchMode === 'material') return row.m.toLowerCase().includes(lower);
+      return row.a.toLowerCase().includes(lower) || row.m.toLowerCase().includes(lower) || row.s.toLowerCase().includes(lower);
+    });
+    currentPage = 1;
+    renderResults(filtered, q);
+  }
+
+  function hl(text, q) {
+    if (!q || !text) return text || '';
+    const safe = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return text.replace(new RegExp(`(${safe})`, 'gi'), '<mark>$1</mark>');
+  }
+
+  function fmt(val) {
+    if (val === null || val === undefined) return null;
+    return Math.round(val).toLocaleString('ko-KR');
+  }
+
+  function cardHTML(row, q) {
+    const dealer = fmt(row.d);
+    const sclass = fmt(row.c);
+    return `<div class="result-card">
+      <div class="card-top">
+        <span class="article-no">${hl(row.a, q)}</span>
+        ${row.s ? `<span class="sales-text">${hl(row.s, q)}</span>` : ''}
+      </div>
+      <div class="material-desc">${hl(row.m, q)}</div>
+      <div class="price-row">
+        <div class="price-box">
+          <div class="price-label">대리점가</div>
+          ${dealer !== null ? `<div class="price-value dealer">₩${dealer}</div>` : `<div class="price-value no-price">—</div>`}
+        </div>
+        <div class="price-box">
+          <div class="price-label">S CLASS</div>
+          ${sclass !== null ? `<div class="price-value sclass">₩${sclass}</div>` : `<div class="price-value no-price">—</div>`}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function renderResults(data, q) {
+    const container = document.getElementById('results-container');
+    const header = document.getElementById('results-header');
+    const pagination = document.getElementById('pagination');
+
+    if (!q || data.length === 0) {
+      header.classList.remove('visible');
+      pagination.innerHTML = '';
+      container.innerHTML = q
+        ? `<div class="center-msg"><div class="icon">😶</div><p><strong>"${q}"</strong>에 해당하는 항목이 없습니다</p></div>`
+        : `<div class="center-msg"><div class="icon">🔎</div><p>Article No. 또는 Material Description을 입력하세요</p></div>`;
+      return;
+    }
+
+    header.classList.add('visible');
+    document.getElementById('results-count').textContent = `검색 결과 ${data.length.toLocaleString()}개`;
+
+    const totalPages = Math.ceil(data.length / PAGE_SIZE);
+    const start = (currentPage - 1) * PAGE_SIZE;
+    container.innerHTML = data.slice(start, start + PAGE_SIZE).map(row => cardHTML(row, q)).join('');
+    renderPagination(totalPages, q);
+  }
+
+  function renderPagination(totalPages, q) {
+    const pg = document.getElementById('pagination');
+    if (totalPages <= 1) { pg.innerHTML = ''; return; }
+    let html = `<button class="page-btn" onclick="changePage(${currentPage-1},'${q}')" ${currentPage===1?'disabled':''}>‹ 이전</button>`;
+    const range = [];
+    for (let i = Math.max(1,currentPage-2); i <= Math.min(totalPages,currentPage+2); i++) range.push(i);
+    if (range[0] > 1) html += `<button class="page-btn" onclick="changePage(1,'${q}')">1</button>${range[0]>2?'<span style="color:var(--muted);padding:0 4px">…</span>':''}`;
+    range.forEach(i => { html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="changePage(${i},'${q}')">${i}</button>`; });
+    if (range[range.length-1] < totalPages) html += `${range[range.length-1]<totalPages-1?'<span style="color:var(--muted);padding:0 4px">…</span>':''}<button class="page-btn" onclick="changePage(${totalPages},'${q}')">${totalPages}</button>`;
+    html += `<button class="page-btn" onclick="changePage(${currentPage+1},'${q}')" ${currentPage===totalPages?'disabled':''}>다음 ›</button>`;
+    pg.innerHTML = html;
+  }
+
+  function changePage(p, q) {
+    if (p < 1 || p > Math.ceil(filtered.length / PAGE_SIZE)) return;
+    currentPage = p;
+    renderResults(filtered, q);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
