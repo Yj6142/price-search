@@ -15,6 +15,7 @@
     --text: #e8eaf6;
     --muted: #7c82a8;
     --success: #22c55e;
+    --danger: #ef4444;
     --warning: #f59e0b;
     --radius: 12px;
   }
@@ -22,10 +23,8 @@
   body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', -apple-system, sans-serif; min-height: 100vh; }
 
   header {
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-    padding: 20px 24px 16px;
-    position: sticky; top: 0; z-index: 100;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 20px 24px 16px; position: sticky; top: 0; z-index: 100;
   }
   .header-inner { max-width: 960px; margin: 0 auto; }
   .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
@@ -68,6 +67,7 @@
   #results-header { display: none; justify-content: space-between; margin-bottom: 12px; font-size: 13px; color: var(--muted); }
   #results-header.visible { display: flex; }
 
+  /* ── 카드 ── */
   .result-card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 16px; margin-bottom: 10px;
@@ -87,15 +87,82 @@
     background: rgba(79,142,247,0.1); padding: 3px 8px; border-radius: 5px; white-space: nowrap;
   }
   .sales-text { font-size: 12px; color: var(--muted); text-align: right; }
-  .material-desc { font-size: 15px; font-weight: 600; margin-bottom: 12px; line-height: 1.4; }
+  .material-desc { font-size: 15px; font-weight: 600; margin-bottom: 14px; line-height: 1.4; }
 
-  .price-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .price-box { background: var(--surface2); border-radius: 8px; padding: 10px 12px; }
-  .price-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .price-value { font-size: 18px; font-weight: 700; }
-  .price-value.dealer { color: var(--warning); }
-  .price-value.sclass { color: var(--success); }
-  .price-value.no-price { font-size: 13px; color: var(--muted); font-weight: 400; }
+  /* ── 단가 비교 그리드 ── */
+  .price-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .price-section {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 12px;
+    position: relative;
+  }
+
+  .price-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .price-section.new-price .price-section-label { color: var(--accent); }
+  .price-section.old-price .price-section-label { color: var(--muted); }
+
+  .price-row-item {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .price-row-item:last-child { margin-bottom: 0; }
+
+  .price-item-label {
+    font-size: 11px; color: var(--muted);
+  }
+
+  .price-item-value {
+    font-size: 16px; font-weight: 700;
+  }
+  .price-item-value.no-price { font-size: 12px; color: var(--muted); font-weight: 400; }
+  .price-item-value.up { color: var(--success); }
+  .price-item-value.down { color: var(--danger); }
+  .price-item-value.same { color: var(--muted); }
+  .price-item-value.new-only { color: var(--warning); }
+
+  /* 변동 뱃지 */
+  .change-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 6px;
+    border-radius: 4px; margin-left: 6px;
+  }
+  .change-badge.up { background: rgba(34,197,94,0.15); color: var(--success); }
+  .change-badge.down { background: rgba(239,68,68,0.15); color: var(--danger); }
+  .change-badge.same { background: rgba(124,130,168,0.15); color: var(--muted); }
+
+  /* 조회불가 */
+  .no-data-badge {
+    font-size: 11px; color: var(--muted);
+    background: rgba(124,130,168,0.1);
+    border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 10px;
+    text-align: center;
+  }
+
+  /* 복사 버튼 */
+  .copy-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 10px; border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--surface); color: var(--muted);
+    font-size: 11px; cursor: pointer; transition: all 0.15s;
+    margin-top: 10px;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--success); color: var(--success); background: rgba(34,197,94,0.08); }
 
   .center-msg { text-align: center; padding: 60px 20px; color: var(--muted); }
   .center-msg .icon { font-size: 36px; margin-bottom: 12px; }
@@ -110,18 +177,6 @@
 
   mark { background: rgba(79,142,247,0.25); color: var(--accent); border-radius: 3px; padding: 0 2px; }
 
-  .copy-btn {
-    display: flex; align-items: center; gap: 5px;
-    padding: 6px 12px; border-radius: 7px;
-    border: 1px solid var(--border);
-    background: var(--surface2); color: var(--muted);
-    font-size: 12px; cursor: pointer; transition: all 0.15s;
-    white-space: nowrap;
-  }
-  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .copy-btn.copied { border-color: var(--success); color: var(--success); background: rgba(34,197,94,0.08); }
-  .price-box-inner { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-
   #pagination { display: flex; justify-content: center; gap: 8px; padding: 20px 0 8px; flex-wrap: wrap; }
   .page-btn {
     padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border);
@@ -131,10 +186,10 @@
   .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
   .page-btn:disabled { opacity: 0.3; cursor: default; }
 
-  @media (max-width: 480px) {
+  @media (max-width: 540px) {
     header { padding: 14px 16px 12px; }
     .search-input { font-size: 16px; }
-    .price-value { font-size: 16px; }
+    .price-grid { grid-template-columns: 1fr; }
     .data-status { display: none; }
   }
 </style>
@@ -165,23 +220,16 @@
 <main>
   <div id="results-header"><span id="results-count"></span></div>
   <div id="results-container">
-    <div class="center-msg">
-      <div class="spinner"></div>
-      <p>단가 데이터를 불러오는 중...</p>
-    </div>
+    <div class="center-msg"><div class="spinner"></div><p>단가 데이터를 불러오는 중...</p></div>
   </div>
   <div id="pagination"></div>
 </main>
 
 <script>
-  let allData = [];
-  let filtered = [];
-  let currentPage = 1;
-  let searchMode = 'all';
+  let allData = [], filtered = [], currentPage = 1, searchMode = 'all';
   let debounceTimer;
   const PAGE_SIZE = 50;
 
-  // 데이터 로드
   fetch('data.json')
     .then(r => r.json())
     .then(data => {
@@ -189,14 +237,13 @@
       document.getElementById('data-status').textContent = `✓ ${data.length.toLocaleString()}개 로드됨`;
       document.getElementById('data-status').classList.add('ready');
       document.getElementById('search-input').disabled = false;
-      document.getElementById('search-input').placeholder = 'Article No. 또는 Material Description 입력...';
       document.getElementById('results-container').innerHTML =
         `<div class="center-msg"><div class="icon">🔎</div><p>Article No. 또는 Material Description을 입력하세요</p></div>`;
       document.getElementById('search-input').focus();
     })
     .catch(() => {
       document.getElementById('results-container').innerHTML =
-        `<div class="center-msg"><div class="icon">⚠️</div><p>data.json 파일을 불러올 수 없습니다.<br>index.html과 같은 폴더에 있는지 확인해주세요.</p></div>`;
+        `<div class="center-msg"><div class="icon">⚠️</div><p>data.json 파일을 불러올 수 없습니다.</p></div>`;
     });
 
   document.getElementById('search-input').addEventListener('input', e => {
@@ -209,8 +256,7 @@
   document.getElementById('clear-btn').addEventListener('click', () => {
     document.getElementById('search-input').value = '';
     document.getElementById('clear-btn').classList.remove('visible');
-    filtered = []; currentPage = 1;
-    renderResults([], '');
+    filtered = []; currentPage = 1; renderResults([], '');
     document.getElementById('search-input').focus();
   });
 
@@ -247,30 +293,77 @@
     return Math.round(val).toLocaleString('ko-KR');
   }
 
+  function priceClass(newVal, oldVal) {
+    if (newVal === null || oldVal === null) return 'new-only';
+    if (newVal > oldVal) return 'up';
+    if (newVal < oldVal) return 'down';
+    return 'same';
+  }
+
+  function changeBadge(newVal, oldVal) {
+    if (newVal === null || oldVal === null) return '';
+    const diff = Math.round(newVal - oldVal);
+    if (diff === 0) return `<span class="change-badge same">변동없음</span>`;
+    const sign = diff > 0 ? '+' : '';
+    const cls = diff > 0 ? 'up' : 'down';
+    return `<span class="change-badge ${cls}">${sign}${diff.toLocaleString('ko-KR')}</span>`;
+  }
+
   function cardHTML(row, q) {
-    const dealer = fmt(row.d);
-    const sclass = fmt(row.c);
-    const copyText = `${row.a}\n${row.s}\n${row.m}\n${dealer !== null ? '@' + dealer : '단가없음'}`;
-    const escapedCopy = copyText.replace(/`/g, '\\`').replace(/\$/g, '\\$');
+    const nd = fmt(row.d), nc = fmt(row.c);
+    const od = fmt(row.od), oc = fmt(row.oc);
+    const hasOld = row.od !== null || row.oc !== null;
+
+    const dcls = priceClass(row.d, row.od);
+    const ccls = priceClass(row.c, row.oc);
+
+    const copyText = `${row.a}\n${row.s}\n${row.m}\n@${nd || '단가없음'}`;
+    const escapedCopy = copyText.replace(/`/g,'\\`').replace(/\$/g,'\\$');
+
     return `<div class="result-card">
       <div class="card-top">
         <span class="article-no">${hl(row.a, q)}</span>
         ${row.s ? `<span class="sales-text">${hl(row.s, q)}</span>` : ''}
       </div>
       <div class="material-desc">${hl(row.m, q)}</div>
-      <div class="price-row">
-        <div class="price-box">
-          <div class="price-label">대리점가</div>
-          <div class="price-box-inner">
-            ${dealer !== null ? `<div class="price-value dealer">₩${dealer}</div>` : `<div class="price-value no-price">—</div>`}
-            <button class="copy-btn" onclick="copyInfo(this, \`${escapedCopy}\`)">📋 복사</button>
+
+      <div class="price-grid">
+        <!-- 신단가 -->
+        <div class="price-section new-price">
+          <div class="price-section-label">🆕 신단가 (2026.06)</div>
+          <div class="price-row-item">
+            <span class="price-item-label">대리점가</span>
+            <span class="price-item-value ${nd ? dcls : 'no-price'}">
+              ${nd ? '₩' + nd : '—'}
+              ${nd && od ? changeBadge(row.d, row.od) : ''}
+            </span>
+          </div>
+          <div class="price-row-item">
+            <span class="price-item-label">S CLASS</span>
+            <span class="price-item-value ${nc ? ccls : 'no-price'}">
+              ${nc ? '₩' + nc : '—'}
+              ${nc && oc ? changeBadge(row.c, row.oc) : ''}
+            </span>
           </div>
         </div>
-        <div class="price-box">
-          <div class="price-label">S CLASS</div>
-          ${sclass !== null ? `<div class="price-value sclass">₩${sclass}</div>` : `<div class="price-value no-price">—</div>`}
+
+        <!-- 구단가 -->
+        <div class="price-section old-price">
+          <div class="price-section-label">📁 구단가 (2026.04)</div>
+          ${hasOld ? `
+          <div class="price-row-item">
+            <span class="price-item-label">A Class</span>
+            <span class="price-item-value" style="color:var(--muted); font-size:15px">${od ? '₩' + od : '—'}</span>
+          </div>
+          <div class="price-row-item">
+            <span class="price-item-label">SS Class</span>
+            <span class="price-item-value" style="color:var(--muted); font-size:15px">${oc ? '₩' + oc : '—'}</span>
+          </div>
+          ` : `<div class="no-data-badge">구단가 조회 불가<br><span style="font-size:10px">해당 Article No. 없음</span></div>`}
         </div>
       </div>
+
+      <button class="copy-btn" onclick="copyInfo(this, \`${escapedCopy}\`)">📋 대리점가 복사</button>
     </div>`;
   }
 
@@ -278,10 +371,7 @@
     navigator.clipboard.writeText(text).then(() => {
       btn.textContent = '✓ 복사됨';
       btn.classList.add('copied');
-      setTimeout(() => {
-        btn.innerHTML = '📋 복사';
-        btn.classList.remove('copied');
-      }, 2000);
+      setTimeout(() => { btn.innerHTML = '📋 대리점가 복사'; btn.classList.remove('copied'); }, 2000);
     });
   }
 
@@ -291,8 +381,7 @@
     const pagination = document.getElementById('pagination');
 
     if (!q || data.length === 0) {
-      header.classList.remove('visible');
-      pagination.innerHTML = '';
+      header.classList.remove('visible'); pagination.innerHTML = '';
       container.innerHTML = q
         ? `<div class="center-msg"><div class="icon">😶</div><p><strong>"${q}"</strong>에 해당하는 항목이 없습니다</p></div>`
         : `<div class="center-msg"><div class="icon">🔎</div><p>Article No. 또는 Material Description을 입력하세요</p></div>`;
@@ -301,7 +390,6 @@
 
     header.classList.add('visible');
     document.getElementById('results-count').textContent = `검색 결과 ${data.length.toLocaleString()}개`;
-
     const totalPages = Math.ceil(data.length / PAGE_SIZE);
     const start = (currentPage - 1) * PAGE_SIZE;
     container.innerHTML = data.slice(start, start + PAGE_SIZE).map(row => cardHTML(row, q)).join('');
