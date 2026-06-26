@@ -33,8 +33,8 @@
     background: linear-gradient(135deg, var(--accent), var(--accent2));
     border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;
   }
-  .logo h1 { font-size: 18px; font-weight: 700; }
-  .logo span { font-size: 12px; color: var(--muted); font-weight: 400; }
+  .logo h1 { font-size: 20px; font-weight: 700; }
+  .logo span { font-size: 13px; color: var(--muted); font-weight: 400; }
 
   .search-wrap { position: relative; }
   .search-input {
@@ -83,11 +83,11 @@
 
   .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
   .article-no {
-    font-family: 'Courier New', monospace; font-size: 13px; color: var(--accent);
-    background: rgba(79,142,247,0.1); padding: 3px 8px; border-radius: 5px; white-space: nowrap;
+    font-family: 'Courier New', monospace; font-size: 15px; color: var(--accent);
+    background: rgba(79,142,247,0.1); padding: 4px 10px; border-radius: 5px; white-space: nowrap;
   }
-  .sales-text { font-size: 12px; color: var(--muted); text-align: right; }
-  .material-desc { font-size: 15px; font-weight: 600; margin-bottom: 14px; line-height: 1.4; }
+  .sales-text { font-size: 14px; color: var(--muted); text-align: right; }
+  .material-desc { font-size: 17px; font-weight: 600; margin-bottom: 14px; line-height: 1.4; }
 
   /* ── 단가 비교 그리드 ── */
   .price-grid {
@@ -104,7 +104,7 @@
   }
 
   .price-section-label {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.8px;
     text-transform: uppercase;
@@ -122,13 +122,13 @@
   .price-row-item:last-child { margin-bottom: 0; }
 
   .price-item-label {
-    font-size: 11px; color: var(--muted);
+    font-size: 13px; color: var(--muted);
   }
 
   .price-item-value {
-    font-size: 16px; font-weight: 700;
+    font-size: 20px; font-weight: 700;
   }
-  .price-item-value.no-price { font-size: 12px; color: var(--muted); font-weight: 400; }
+  .price-item-value.no-price { font-size: 14px; color: var(--muted); font-weight: 400; }
   .price-item-value.up { color: var(--success); }
   .price-item-value.down { color: var(--danger); }
   .price-item-value.same { color: var(--muted); }
@@ -136,8 +136,9 @@
 
   /* 변동 뱃지 */
   .change-badge {
-    font-size: 10px; font-weight: 700; padding: 2px 6px;
-    border-radius: 4px; margin-left: 6px;
+    display: inline-block;
+    font-size: 12px; font-weight: 700; padding: 3px 8px;
+    border-radius: 4px; margin-top: 6px;
   }
   .change-badge.up { background: rgba(34,197,94,0.15); color: var(--success); }
   .change-badge.down { background: rgba(239,68,68,0.15); color: var(--danger); }
@@ -153,13 +154,16 @@
   }
 
   /* 복사 버튼 */
+  .copy-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-top: 12px;
+  }
   .copy-btn {
-    display: flex; align-items: center; gap: 5px;
-    padding: 5px 10px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    padding: 8px 12px; border-radius: 7px;
     border: 1px solid var(--border);
     background: var(--surface); color: var(--muted);
-    font-size: 11px; cursor: pointer; transition: all 0.15s;
-    margin-top: 10px;
+    font-size: 13px; cursor: pointer; transition: all 0.15s;
   }
   .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
   .copy-btn.copied { border-color: var(--success); color: var(--success); background: rgba(34,197,94,0.08); }
@@ -316,8 +320,10 @@
     const hasOld = row.od !== null;
     const dcls = priceClass(row.d, row.od);
 
-    const copyText = `${row.a}\n${row.s}\n${row.m}\n@${nd || '단가없음'}`;
-    const escapedCopy = copyText.replace(/`/g,'\\`').replace(/\$/g,'\\$');
+    const copyNew = `${row.a}\n${row.s}\n${row.m}\n@${nd || '단가없음'}`;
+    const copyOld = `${row.a}\n${row.s}\n${row.m}\n@${od || '단가없음'}`;
+    const escNew = copyNew.replace(/`/g,'\\`').replace(/\$/g,'\\$');
+    const escOld = copyOld.replace(/`/g,'\\`').replace(/\$/g,'\\$');
 
     return `<div class="result-card">
       <div class="card-top">
@@ -330,36 +336,35 @@
         <!-- 신단가 대리점가 -->
         <div class="price-section new-price">
           <div class="price-section-label">🆕 신단가 (2026.06)</div>
-          <div class="price-row-item">
-            <span class="price-item-label">대리점가</span>
-            <span class="price-item-value ${nd ? dcls : 'no-price'}">
-              ${nd ? '₩' + nd : '—'}
-            </span>
+          <div class="price-item-label">대리점가</div>
+          <div class="price-item-value ${nd ? dcls : 'no-price'}" style="margin-top:4px">
+            ${nd ? '₩' + nd : '—'}
           </div>
-          ${nd && hasOld ? `<div style="margin-top:6px">${changeBadge(row.d, row.od)}</div>` : ''}
+          ${nd && hasOld ? changeBadge(row.d, row.od) : ''}
         </div>
 
         <!-- 구단가 A Class -->
         <div class="price-section old-price">
           <div class="price-section-label">📁 구단가 (2026.04)</div>
           ${hasOld ? `
-          <div class="price-row-item">
-            <span class="price-item-label">A Class</span>
-            <span class="price-item-value" style="color:var(--muted); font-size:15px">${od ? '₩' + od : '—'}</span>
-          </div>
-          ` : `<div class="no-data-badge">구단가 조회 불가<br><span style="font-size:10px">해당 Article No. 없음</span></div>`}
+          <div class="price-item-label">A Class</div>
+          <div class="price-item-value" style="color:var(--muted); margin-top:4px">${od ? '₩' + od : '—'}</div>
+          ` : `<div class="no-data-badge" style="margin-top:8px">구단가 조회 불가<br><span style="font-size:11px">해당 Article No. 없음</span></div>`}
         </div>
       </div>
 
-      <button class="copy-btn" onclick="copyInfo(this, \`${escapedCopy}\`)">📋 대리점가 복사</button>
+      <div class="copy-row">
+        <button class="copy-btn" onclick="copyInfo(this, \`${escNew}\`, '📋 신단가 복사')">📋 신단가 복사</button>
+        <button class="copy-btn" onclick="copyInfo(this, \`${escOld}\`, '📋 구단가 복사')">📋 구단가 복사</button>
+      </div>
     </div>`;
   }
 
-  function copyInfo(btn, text) {
+  function copyInfo(btn, text, label) {
     navigator.clipboard.writeText(text).then(() => {
       btn.textContent = '✓ 복사됨';
       btn.classList.add('copied');
-      setTimeout(() => { btn.innerHTML = '📋 대리점가 복사'; btn.classList.remove('copied'); }, 2000);
+      setTimeout(() => { btn.innerHTML = label; btn.classList.remove('copied'); }, 2000);
     });
   }
 
