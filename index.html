@@ -303,19 +303,18 @@
   function changeBadge(newVal, oldVal) {
     if (newVal === null || oldVal === null) return '';
     const diff = Math.round(newVal - oldVal);
+    const pct = oldVal !== 0 ? ((newVal - oldVal) / oldVal * 100).toFixed(1) : 0;
     if (diff === 0) return `<span class="change-badge same">변동없음</span>`;
     const sign = diff > 0 ? '+' : '';
     const cls = diff > 0 ? 'up' : 'down';
-    return `<span class="change-badge ${cls}">${sign}${diff.toLocaleString('ko-KR')}</span>`;
+    return `<span class="change-badge ${cls}">${sign}${diff.toLocaleString('ko-KR')} (${sign}${pct}%)</span>`;
   }
 
   function cardHTML(row, q) {
-    const nd = fmt(row.d), nc = fmt(row.c);
-    const od = fmt(row.od), oc = fmt(row.oc);
-    const hasOld = row.od !== null || row.oc !== null;
-
+    const nd = fmt(row.d);
+    const od = fmt(row.od);
+    const hasOld = row.od !== null;
     const dcls = priceClass(row.d, row.od);
-    const ccls = priceClass(row.c, row.oc);
 
     const copyText = `${row.a}\n${row.s}\n${row.m}\n@${nd || '단가없음'}`;
     const escapedCopy = copyText.replace(/`/g,'\\`').replace(/\$/g,'\\$');
@@ -328,36 +327,25 @@
       <div class="material-desc">${hl(row.m, q)}</div>
 
       <div class="price-grid">
-        <!-- 신단가 -->
+        <!-- 신단가 대리점가 -->
         <div class="price-section new-price">
           <div class="price-section-label">🆕 신단가 (2026.06)</div>
           <div class="price-row-item">
             <span class="price-item-label">대리점가</span>
             <span class="price-item-value ${nd ? dcls : 'no-price'}">
               ${nd ? '₩' + nd : '—'}
-              ${nd && od ? changeBadge(row.d, row.od) : ''}
             </span>
           </div>
-          <div class="price-row-item">
-            <span class="price-item-label">S CLASS</span>
-            <span class="price-item-value ${nc ? ccls : 'no-price'}">
-              ${nc ? '₩' + nc : '—'}
-              ${nc && oc ? changeBadge(row.c, row.oc) : ''}
-            </span>
-          </div>
+          ${nd && hasOld ? `<div style="margin-top:6px">${changeBadge(row.d, row.od)}</div>` : ''}
         </div>
 
-        <!-- 구단가 -->
+        <!-- 구단가 A Class -->
         <div class="price-section old-price">
           <div class="price-section-label">📁 구단가 (2026.04)</div>
           ${hasOld ? `
           <div class="price-row-item">
             <span class="price-item-label">A Class</span>
             <span class="price-item-value" style="color:var(--muted); font-size:15px">${od ? '₩' + od : '—'}</span>
-          </div>
-          <div class="price-row-item">
-            <span class="price-item-label">SS Class</span>
-            <span class="price-item-value" style="color:var(--muted); font-size:15px">${oc ? '₩' + oc : '—'}</span>
           </div>
           ` : `<div class="no-data-badge">구단가 조회 불가<br><span style="font-size:10px">해당 Article No. 없음</span></div>`}
         </div>
